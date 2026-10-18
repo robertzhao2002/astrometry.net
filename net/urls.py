@@ -192,7 +192,7 @@ urlpatterns.append(
 
 from astrometry.net.api import (
     api_login, api_upload, url_upload, api_sdss_image_for_wcs, api_galex_image_for_wcs,
-    api_submission_images, submission_status, myjobs, job_status, calibration, tags,
+    api_submission_images, submission_status, myjobs, mysubmissions, job_status, calibration, tags,
     machine_tags, objects_in_field, annotations_in_field, job_info, jobs_by_tag)
 
 urlpatterns.extend([
@@ -204,6 +204,7 @@ urlpatterns.extend([
     re_path(r'^api/submission_images/?$', api_submission_images, name='api_submission_images'),
     re_path(r'^api/submissions/(?P<sub_id>' + idpattern + r')/?$', submission_status, name='api_submission_status'),
     re_path(r'^api/myjobs/?', myjobs, name='api_myjobs'),
+    re_path(r'^api/mysubmissions/?$', mysubmissions, name='api_mysubmissions'),
     re_path(r'^api/jobs/(?P<job_id>' + idpattern + r')/?$', job_status, name='api_job_status'),
     re_path(r'^api/jobs/(?P<job_id>' + idpattern + r')/calibration/?$', calibration, name='api_calibration'),
     re_path(r'^api/jobs/(?P<job_id>' + idpattern + r')/tags/?$', tags, name='api_tags'),

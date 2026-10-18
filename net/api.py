@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 # astrometry.net imports
 from astrometry.net.models import *
@@ -24,6 +25,7 @@ from astrometry.net.views.submission import handle_file_upload
 from astrometry.net.api_util import *
 from astrometry.net.log import *
 from astrometry.net.tmpfile import *
+from astrometry.net.util import get_page
 import astrometry.net.settings
 
 # Content-type to return for JSON outputs.
@@ -364,6 +366,35 @@ def api_login(request):
 def myjobs(request):
     jobs = Job.objects.filter(user_image__user=auth.get_user(request))
     return HttpResponseJson({ 'jobs': [j.id for j in jobs], 'status':'success'})
+
+@csrf_exempt
+@requires_json_args(False)
+@requires_json_session
+@requires_json_login
+def mysubmissions(request):
+    user = auth.get_user(request)
+    submissions = (user.submissions.all()
+                   .order_by('-submitted_on')
+                   .prefetch_related('user_images'))
+    page = get_page(submissions, 15, request.json.get('page', 1))
+
+    results = []
+    for submission in page:
+        user_images = list(submission.user_images.all())
+        thumbnail = None
+        if user_images:
+            thumbnail = reverse('serve_thumbnail_image', kwargs={'id': user_images[0].image_id})
+        results.append({
+            'id': submission.id,
+            'submitted_on': str(submission.submitted_on),
+            'thumbnail': thumbnail,
+        })
+    return HttpResponseJson({
+        'status': 'success',
+        'page': page.number,
+        'num_pages': page.paginator.num_pages,
+        'submissions': results,
+    })
 
 @csrf_exempt
 def submission_status(req, sub_id):
