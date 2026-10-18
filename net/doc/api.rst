@@ -190,6 +190,33 @@ If the job has not started yet, the *jobs* array may be empty.  If the
 *job_calibrations* array is not empty, then we solved your image.
 
 
+Getting your submissions
+------------------------
+
+Returns the logged-in user's submissions, newest first, 15 per page.
+This includes submissions that have not started processing yet.
+
+API URL:
+
+    https://nova.astrometry.net/api/mysubmissions
+
+Arguments:
+
+  * ``session``: string, required. Your session key, required in all requests
+  * ``page``: int, optional. Page number, starting at 1 (default 1)
+
+Returns (example)::
+
+    {"status": "success", "page": 1, "num_pages": 1,
+     "submissions": [{"id": 16288224, "submitted_on": "2026-10-18 03:41:10.123456+00:00",
+                      "thumbnail": "/thumbnail_of_image/41140961"},
+                     {"id": 16288300, "submitted_on": "2026-10-18 03:50:02.000000+00:00",
+                      "thumbnail": null}]}
+
+``thumbnail`` is null until the uploaded image has been processed. Stop
+requesting pages when ``page`` equals ``num_pages``.
+
+
 Getting job status
 ------------------
 
